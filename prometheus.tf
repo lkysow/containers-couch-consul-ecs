@@ -169,7 +169,7 @@ scrape_configs:
   - source_labels:
     - __meta_consul_tagged_address_lan
     regex: '(.*)'
-    replacement: '${1}:20200'
+    replacement: '\$${1}:20200'
     target_label: '__address__'
     action: 'replace'
 
@@ -257,4 +257,13 @@ resource "aws_security_group" "prometheus" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_security_group_rule" "ingress_from_prometheus_alb_to_ecs" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.prometheus.id
+  security_group_id        = module.vpc.default_security_group_id
 }
