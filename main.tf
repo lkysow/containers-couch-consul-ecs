@@ -131,9 +131,18 @@ module "greeting" {
         value = "9090"
       }
     ]
+    healthCheck = {
+      command  = ["CMD-SHELL", "echo 1"]
+      interval = 30
+      retries  = 3
+      timeout  = 5
+    }
   }]
   retry_join          = [module.dev_consul_server.server_dns]
   consul_service_name = "greeting"
+  consul_service_meta = {
+    group = "blue"
+  }
 }
 
 resource "aws_ecs_service" "greeting_german" {
@@ -167,10 +176,18 @@ module "greeting_german" {
         value = "9090"
       }
     ]
+    healthCheck = {
+      command  = ["CMD-SHELL", "echo 1"]
+      interval = 30
+      retries  = 3
+      timeout  = 5
+    }
   }]
   retry_join          = [module.dev_consul_server.server_dns]
-  consul_service_tags = ["german"]
   consul_service_name = "greeting"
+  consul_service_meta = {
+    group = "green"
+  }
 }
 
 resource "aws_ecs_service" "name" {
@@ -204,6 +221,12 @@ module "name" {
         value = "9090"
       }
     ]
+    healthCheck = {
+      command  = ["CMD-SHELL", "echo 1"]
+      interval = 30
+      retries  = 3
+      timeout  = 5
+    }
   }]
   retry_join          = [module.dev_consul_server.server_dns]
   consul_service_name = "name"
