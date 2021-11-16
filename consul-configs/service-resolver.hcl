@@ -1,11 +1,11 @@
 kind = "service-resolver"
 name = "greeting"
-default_subset = "all"
+default_subset = "blue"
 subsets = {
-  all = {
-    filter = "\"german\" not in ServiceTags"
+  blue = {
+    filter = "Service.Meta.group == blue"
   }
-  german = {
-    filter = "\"german\" in ServiceTags"
+  green = {
+    filter = "Service.Meta.group == green"
   }
 }

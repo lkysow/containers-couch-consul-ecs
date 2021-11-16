@@ -3,10 +3,10 @@ name   = "greeting"
 splits = [
   {
     Weight        = 0
-    ServiceSubset = "all"
+    ServiceSubset = "blue"
   },
   {
     Weight        = 100
-    ServiceSubset = "german"
+    ServiceSubset = "green"
   }
 ]
