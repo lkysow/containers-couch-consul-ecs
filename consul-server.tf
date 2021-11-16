@@ -1,6 +1,8 @@
 # Run the Consul dev server as an ECS task.
 module "dev_consul_server" {
-  source  = "github.com/hashicorp/terraform-aws-ecs-consul//modules/dev-server"
+  // todo: point at my branch
+  #  source  = "github.com/hashicorp/terraform-aws-ecs-consul//modules/dev-server"
+  source = "/Users/lkysow/code/hashicorp/terraform-aws-consul-ecs/modules/dev-server"
 
   name                        = "${var.name}-consul-server"
   ecs_cluster_arn             = aws_ecs_cluster.this.arn
@@ -17,5 +19,14 @@ module "dev_consul_server" {
       awslogs-stream-prefix = "consul-server"
     }
   }
-  launch_type = "FARGATE"
+  launch_type  = "FARGATE"
+  extra_config = <<EOT
+ui_config {
+  enabled = true
+  metrics_provider = "prometheus"
+  metrics_proxy {
+    base_url = "http://${aws_service_discovery_service.prometheus.name}.${aws_service_discovery_private_dns_namespace.prometheus.name}:9090"
+  }
+}
+EOT
 }

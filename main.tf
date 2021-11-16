@@ -44,11 +44,11 @@ resource "aws_ecs_service" "greeter" {
 }
 
 module "greeter" {
-  source  = "github.com/hashicorp/terraform-aws-ecs-consul//modules/mesh-task"
+  source = "github.com/hashicorp/terraform-aws-ecs-consul//modules/mesh-task"
 
   consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
-  family = "${var.name}-greeter"
-  port   = "9090"
+  family           = "${var.name}-greeter"
+  port             = "9090"
   upstreams = [
     {
       destination_name = "${var.name}-greeting"
@@ -62,7 +62,7 @@ module "greeter" {
   log_configuration = local.greeter_log_config
   container_definitions = [{
     name             = "greeter"
-    image            = "nathanpeck/greeter"
+    image            = "ghcr.io/lkysow/greeter"
     essential        = true
     logConfiguration = local.greeter_log_config
     environment = [
@@ -107,15 +107,15 @@ resource "aws_ecs_service" "greeting" {
 }
 
 module "greeting" {
-  source  = "github.com/hashicorp/terraform-aws-ecs-consul//modules/mesh-task"
+  source = "github.com/hashicorp/terraform-aws-ecs-consul//modules/mesh-task"
 
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  consul_ecs_image  = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
   family            = "${var.name}-greeting"
   port              = "9090"
   log_configuration = local.greeting_log_config
   container_definitions = [{
     name             = "greeting"
-    image            = "nathanpeck/greeting"
+    image            = "ghcr.io/lkysow/greeting"
     essential        = true
     logConfiguration = local.greeting_log_config
     environment = [
@@ -142,17 +142,17 @@ resource "aws_ecs_service" "name" {
 }
 
 module "name" {
-  source  = "github.com/hashicorp/terraform-aws-ecs-consul//modules/mesh-task"
+  source = "github.com/hashicorp/terraform-aws-ecs-consul//modules/mesh-task"
 
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  consul_ecs_image  = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
   family            = "${var.name}-name"
   port              = "9090"
-  log_configuration = local.greeting_log_config
+  log_configuration = local.name_log_config
   container_definitions = [{
     name             = "name"
-    image            = "nathanpeck/name"
+    image            = "ghcr.io/lkysow/name"
     essential        = true
-    logConfiguration = local.greeting_log_config
+    logConfiguration = local.name_log_config
     environment = [
       {
         name  = "PORT"
@@ -246,7 +246,7 @@ locals {
     options = {
       awslogs-group         = aws_cloudwatch_log_group.log_group.name
       awslogs-region        = var.region
-      awslogs-stream-prefix = "app"
+      awslogs-stream-prefix = "greeting"
     }
   }
 
@@ -255,7 +255,16 @@ locals {
     options = {
       awslogs-group         = aws_cloudwatch_log_group.log_group.name
       awslogs-region        = var.region
-      awslogs-stream-prefix = "client"
+      awslogs-stream-prefix = "greeter"
+    }
+  }
+
+  name_log_config = {
+    logDriver = "awslogs"
+    options = {
+      awslogs-group         = aws_cloudwatch_log_group.log_group.name
+      awslogs-region        = var.region
+      awslogs-stream-prefix = "name"
     }
   }
 }
