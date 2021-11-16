@@ -2,11 +2,11 @@ kind   = "service-splitter"
 name   = "greeting"
 splits = [
   {
-    Weight        = 100
+    Weight        = 0
     ServiceSubset = "all"
   },
   {
-    Weight        = 0
+    Weight        = 100
     ServiceSubset = "german"
   }
 ]

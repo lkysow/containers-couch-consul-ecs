@@ -8,7 +8,7 @@ module "dev_consul_server" {
   vpc_id                      = module.vpc.vpc_id
   lb_enabled                  = true
   lb_subnets                  = module.vpc.public_subnets
-  lb_ingress_rule_cidr_blocks = ["${var.lb_ingress_ip}/32"]
+  lb_ingress_rule_cidr_blocks = var.lb_ingress_cidrs
   log_configuration = {
     logDriver = "awslogs"
     options = {

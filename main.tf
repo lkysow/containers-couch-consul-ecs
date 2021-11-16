@@ -86,6 +86,12 @@ module "greeter" {
         protocol      = "tcp"
       }
     ]
+    healthCheck = {
+      command  = ["CMD-SHELL", "echo 1"]
+      interval = 30
+      retries  = 3
+      timeout  = 5
+    }
     cpu         = 0
     mountPoints = []
     volumesFrom = []
@@ -220,7 +226,7 @@ resource "aws_security_group" "greeter_alb" {
     from_port   = 9090
     to_port     = 9090
     protocol    = "tcp"
-    cidr_blocks = ["${var.lb_ingress_ip}/32"]
+    cidr_blocks = var.lb_ingress_cidrs
   }
 
   egress {
