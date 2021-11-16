@@ -247,7 +247,7 @@ resource "aws_security_group" "prometheus" {
     from_port       = 9090
     to_port         = 9090
     protocol        = "tcp"
-    cidr_blocks     = ["${var.lb_ingress_ip}/32"]
+    cidr_blocks     = var.lb_ingress_cidrs
     security_groups = []
   }
 

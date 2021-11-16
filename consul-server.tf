@@ -8,17 +8,17 @@ module "dev_consul_server" {
   vpc_id                      = module.vpc.vpc_id
   lb_enabled                  = true
   lb_subnets                  = module.vpc.public_subnets
-  lb_ingress_rule_cidr_blocks = ["${var.lb_ingress_ip}/32"]
-  log_configuration           = {
+  lb_ingress_rule_cidr_blocks = var.lb_ingress_cidrs
+  log_configuration = {
     logDriver = "awslogs"
-    options   = {
+    options = {
       awslogs-group         = aws_cloudwatch_log_group.log_group.name
       awslogs-region        = var.region
       awslogs-stream-prefix = "consul-server"
     }
   }
-  launch_type                 = "FARGATE"
-  extra_config                = <<EOT
+  launch_type  = "FARGATE"
+  extra_config = <<EOT
 ui_config {
   enabled = true
   metrics_provider = "prometheus"
