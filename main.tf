@@ -51,11 +51,11 @@ module "greeter" {
   port             = "9090"
   upstreams = [
     {
-      destination_name = "${var.name}-greeting"
+      destination_name = "greeting"
       local_bind_port  = 7070
     },
     {
-      destination_name = "${var.name}-name"
+      destination_name = "name"
       local_bind_port  = 8080
     }
   ]
@@ -90,7 +90,8 @@ module "greeter" {
     mountPoints = []
     volumesFrom = []
   }]
-  retry_join = [module.dev_consul_server.server_dns]
+  retry_join          = [module.dev_consul_server.server_dns]
+  consul_service_name = "greeter"
 }
 
 resource "aws_ecs_service" "greeting" {
@@ -125,7 +126,45 @@ module "greeting" {
       }
     ]
   }]
-  retry_join = [module.dev_consul_server.server_dns]
+  retry_join          = [module.dev_consul_server.server_dns]
+  consul_service_name = "greeting"
+}
+
+resource "aws_ecs_service" "greeting_german" {
+  name            = "${var.name}-greeting-german"
+  cluster         = aws_ecs_cluster.this.arn
+  task_definition = module.greeting_german.task_definition_arn
+  desired_count   = 1
+  network_configuration {
+    subnets = module.vpc.private_subnets
+  }
+  launch_type            = "FARGATE"
+  propagate_tags         = "TASK_DEFINITION"
+  enable_execute_command = true
+}
+
+module "greeting_german" {
+  source = "github.com/hashicorp/terraform-aws-ecs-consul//modules/mesh-task"
+
+  consul_ecs_image  = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  family            = "${var.name}-greeting-german"
+  port              = "9090"
+  log_configuration = local.greeting_german_log_config
+  container_definitions = [{
+    name             = "greeting"
+    image            = "ghcr.io/lkysow/greeting:german"
+    essential        = true
+    logConfiguration = local.greeting_german_log_config
+    environment = [
+      {
+        name  = "PORT"
+        value = "9090"
+      }
+    ]
+  }]
+  retry_join          = [module.dev_consul_server.server_dns]
+  consul_service_tags = ["german"]
+  consul_service_name = "greeting"
 }
 
 resource "aws_ecs_service" "name" {
@@ -160,7 +199,8 @@ module "name" {
       }
     ]
   }]
-  retry_join = [module.dev_consul_server.server_dns]
+  retry_join          = [module.dev_consul_server.server_dns]
+  consul_service_name = "name"
 }
 
 resource "aws_lb" "greeter" {
@@ -247,6 +287,15 @@ locals {
       awslogs-group         = aws_cloudwatch_log_group.log_group.name
       awslogs-region        = var.region
       awslogs-stream-prefix = "greeting"
+    }
+  }
+
+  greeting_german_log_config = {
+    logDriver = "awslogs"
+    options = {
+      awslogs-group         = aws_cloudwatch_log_group.log_group.name
+      awslogs-region        = var.region
+      awslogs-stream-prefix = "greeting-german"
     }
   }
 
