@@ -62,7 +62,7 @@ module "greeter" {
   log_configuration = local.greeter_log_config
   container_definitions = [{
     name             = "greeter"
-    image            = "ghcr.io/lkysow/greeter"
+    image            = "ghcr.io/lkysow/greeter:error-logging"
     essential        = true
     logConfiguration = local.greeter_log_config
     environment = [
