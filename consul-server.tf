@@ -2,6 +2,7 @@
 module "dev_consul_server" {
   source = "github.com/hashicorp/terraform-aws-ecs-consul//modules/dev-server?ref=dev-server-extraconfig"
 
+  consul_image                = "public.ecr.aws/hashicorp/consul:1.10.4"
   name                        = "${var.name}-consul-server"
   ecs_cluster_arn             = aws_ecs_cluster.this.arn
   subnet_ids                  = module.vpc.private_subnets
